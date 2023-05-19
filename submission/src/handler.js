@@ -22,16 +22,6 @@ const addBookHandler = (request, h) => {
       .code(400);
   }
 
-  if (readPage > pageCount) {
-    return h
-      .response({
-        status: "fail",
-        message:
-          "Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount",
-      })
-      .code(400);
-  }
-
   const id = nanoid(16);
   const insertedAt = new Date().toISOString();
   const updatedAt = insertedAt;
@@ -55,25 +45,35 @@ const addBookHandler = (request, h) => {
 
   books.push(newBook);
 
-  const isSuccess = books.filter((book) => book.id === id).length > 0;
-  if (isSuccess) {
-    const response = h.response({
+  const pageCountInt = parseInt(pageCount, 10);
+  const readPageInt = parseInt(readPage, 10);
+
+  if (readPageInt > pageCountInt) {
+    return h
+      .response({
+        status: "fail",
+        message:
+          "Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount",
+      })
+      .code(400);
+  }
+
+  return h
+    .response({
       status: "success",
       message: "Buku berhasil ditambahkan",
       data: {
         bookId: id,
       },
-    });
-    response.code(201);
-    return response;
-  }
-
-  const response = h.response({
-    status: "fail",
-    message: "Catatan gagal ditambahkan",
-  });
-  response.code(500);
-  return response;
+    })
+    .code(201);
 };
 
-module.exports = { addBookHandler };
+const getBooksHandler = (request, h) => ({
+  status: "success",
+  data: {
+    books,
+  },
+});
+
+module.exports = { addBookHandler, getBooksHandler };
